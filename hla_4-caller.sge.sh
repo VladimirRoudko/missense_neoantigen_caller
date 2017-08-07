@@ -44,4 +44,4 @@ mv hla/*/*.pdf $SAMPLE.HLA.pdf
 
 rm -r hla
 
-
+cd ..

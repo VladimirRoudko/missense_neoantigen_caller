@@ -15,7 +15,7 @@ NT=1
 
 . config.sh
 
-sample=$(awk NR==$SGE_TASK_ID sample_list)
+sample=$(awk NR==$SGE_TASK_ID samplelist)
 read IF_GERMLINE IF_SOMATIC SAMPLE <<< $sample
 #cd "$SAMPLE"
 

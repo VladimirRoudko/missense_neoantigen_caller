@@ -11,7 +11,7 @@
 
 #exec 1>log_dna.out
 
-sample=$(awk NR==$SGE_TASK_ID filelist.txt)
+sample=$(awk NR==$SGE_TASK_ID samplelist)
 read IF_GERMLINE IF_SOMATIC SAMPLE <<< $sample
 
 mkdir -p "$SAMPLE"

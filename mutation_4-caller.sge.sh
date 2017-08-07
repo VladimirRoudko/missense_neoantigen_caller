@@ -11,7 +11,7 @@ NT=2
 . ~/.bashrc
 . config.sh
 
-sample=$(awk NR==$SGE_TASK_ID sample_list)
+sample=$(awk NR==$SGE_TASK_ID samplelist)
 read IF_GERMLINE IF_SOMATIC SAMPLE <<< $sample
 #cd "$SAMPLE"
 
@@ -21,18 +21,29 @@ cd "$SAMPLE"
 exec 1>log_mutation.$SAMPLE.out
 exec 2>log_mutation.$SAMPLE.err
 
+
+if [[ $BAM_ROOT eq $BAM_OUT ]]; then
 cp "$BAM_ROOT/$IF_GERMLINE" normal.bam
 cp "$BAM_ROOT/${IF_GERMLINE%.bam}.bai" normal.bam.bai
 #samtools index normal.bam
 cp "$BAM_ROOT/$IF_SOMATIC" tumor.bam
 cp "$BAM_ROOT/${IF_SOMATIC%.bam}.bai" tumor.bam.bai
 #samtools index tumor.bam
+else 
+cp "$BAM_OUT/$SAMPLE.normal.bam" normal.bam
+cp "$BAM_OUT/$SAMPLE.normal.bai" normal.bam.bai
+#samtools index normal.bam
+cp "$BAM_OUT/$SAMPLE.tumor.bam" tumor.bam
+cp "$BAM_OUT/$SAMPLE.tumor.bai" tumor.bam.bai
+#samtools index tumor.bam
+fi
 
 # Run HLA typing by optitype:
 sh ../$HLA_SCRIPT $SAMPLE $IF_SOMATIC $IF_GERMLINE
 
 # Run mutation callers
 mkdir -p {mutect,varscan,somatic-sniper,vcf,strelka,samtools}
+
 
 
 # === varscan ===
@@ -45,7 +56,7 @@ samtools mpileup -B -q 1 -f "$REF_FASTA" normal.bam tumor.bam \
 	> nt.mpileup
 
 varscan somatic nt.mpileup vs --mpileup 1 \
-	--min-coverage 10 --min-var-freq 0.04 --somatic-p-value 0.05 \
+	--min-coverage 5 --min-var-freq 0.01 --somatic-p-value 0.05 \
 	--output-vcf 1
 
 for x in vs*.vcf
