@@ -1,11 +1,12 @@
 #!/bin/sh
 #$ -S /bin/bash
-#$ -pe smp 4
+#$ -pe smp 2
 #$ -cwd
 #$ -N hla_typing
 # number of threads
-#NT=4
+#NT=2
 
+. ../config.sh
 
 SAMPLE=$1
 mkdir -p "hla_optitype"
@@ -17,6 +18,7 @@ exec 2>log_hla.optitype.$SAMPLE.err
 mkfifo fq1
 mkfifo fq2
 ln -s ../normal.bam normal.bam
+ln -s ../normal.bam.bai normal.bam.bai
 
 picard SortSam I="normal.bam" O="/dev/stdout" SORT_ORDER=queryname | \
 bedtools bamtofastq -i "/dev/stdin" -fq "fq1" -fq2 "fq2" &
@@ -24,9 +26,6 @@ bedtools bamtofastq -i "/dev/stdin" -fq "fq1" -fq2 "fq2" &
 bwa mem -M -t 2 "$HLA_DNA_REFERENCE" "fq1" | samtools view -bSho "out1.bam" - &
 bwa mem -M -t 2 "$HLA_DNA_REFERENCE" "fq2" | samtools view -bSho "out2.bam" - &
 wait;
-
-rm normal.bam
-rm *.bai
 
 samtools bam2fq out1.bam > out1.fastq
 samtools bam2fq out2.bam > out2.fastq

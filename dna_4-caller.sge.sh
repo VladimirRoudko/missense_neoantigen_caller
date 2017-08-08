@@ -5,6 +5,8 @@
 #$ -cwd
 #$ -o log/log.o
 #$ -e log/log.e
+#$ -q standard.q
+
 
 . config.sh
 . /etc/profile.d/sge.sh
@@ -21,11 +23,14 @@ exec 2>log_dna_realignment.$SAMPLE.err
 exec 1>log_dna_realignment.$SAMPLE.out
 
 cp "$BAM_ROOT/$IF_GERMLINE" normal.bam
-INDEX="$IF_GERMLINE"."bai"
-cp "$BAM_ROOT/$INDEX" normal.bai
+#INDEX="$IF_GERMLINE"."bai"
+#cp "$BAM_ROOT/$INDEX" normal.bai
 cp "$BAM_ROOT/$IF_SOMATIC" tumor.bam
-INDEX="$IF_SOMATIC"."bai"
-cp "$BAM_ROOT/$INDEX" tumor.bai
+#INDEX="$IF_SOMATIC"."bai"
+#cp "$BAM_ROOT/$INDEX" tumor.bai
+
+samtools index normal.bam
+samtools index tumor.bam 
 
 #### process .bam file
 for i in *.bam
@@ -201,4 +206,7 @@ mv $id.bam $BAM_OUT/$SAMPLE.$id.bam
 mv $id.bai $BAM_OUT/$SAMPLE.$id.bai
 
 done
+
+mkdir "dna_4_caller"
+mv * "dna_4_caller"
 
